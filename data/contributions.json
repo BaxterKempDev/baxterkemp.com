@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-03T09:00:04.433Z",
+  "generatedAt": "2026-08-03T11:39:42.868Z",
   "from": "2025-08-03",
   "to": "2026-08-03",
   "sources": {
@@ -10,8 +10,8 @@
   "totals": {
     "github": 524,
     "cursor": 0,
-    "claude": 307,
-    "combined": 831
+    "claude": 312,
+    "combined": 836
   },
   "days": [
     {
@@ -2938,8 +2938,8 @@
       "date": "2026-08-03",
       "github": 47,
       "cursor": 0,
-      "claude": 14,
-      "total": 61,
+      "claude": 19,
+      "total": 66,
       "level": 4
     }
   ]
