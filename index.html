@@ -1,6 +1,115 @@
 <html>
     <head>
         <title>Baxter Kemp</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            :root {
+                --contrib-0: #ebedf0;
+                --contrib-1: #9be9a8;
+                --contrib-2: #40c463;
+                --contrib-3: #30a14e;
+                --contrib-4: #216e39;
+                --contrib-border: #d0d7de;
+                --contrib-text: #57606a;
+            }
+
+            .contrib {
+                margin: 1.5rem 0 2rem;
+                max-width: 920px;
+            }
+
+            .contrib-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem 1.25rem;
+                align-items: baseline;
+                margin-bottom: 0.75rem;
+                color: var(--contrib-text);
+                font-size: 0.95rem;
+            }
+
+            .contrib-meta strong {
+                color: #24292f;
+            }
+
+            .contrib-sources {
+                font-size: 0.85rem;
+            }
+
+            .contrib-scroll {
+                overflow-x: auto;
+                padding-bottom: 0.25rem;
+            }
+
+            .contrib-graph {
+                display: grid;
+                grid-template-rows: repeat(7, 11px);
+                grid-auto-flow: column;
+                grid-auto-columns: 11px;
+                gap: 3px;
+                width: max-content;
+            }
+
+            .contrib-day {
+                width: 11px;
+                height: 11px;
+                border-radius: 2px;
+                background: var(--contrib-0);
+                outline: 1px solid rgba(27, 31, 36, 0.06);
+                outline-offset: -1px;
+            }
+
+            .contrib-day[data-level="1"] { background: var(--contrib-1); }
+            .contrib-day[data-level="2"] { background: var(--contrib-2); }
+            .contrib-day[data-level="3"] { background: var(--contrib-3); }
+            .contrib-day[data-level="4"] { background: var(--contrib-4); }
+
+            .contrib-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                margin-top: 0.6rem;
+                color: var(--contrib-text);
+                font-size: 0.8rem;
+            }
+
+            .contrib-legend {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .contrib-legend .contrib-day {
+                display: inline-block;
+            }
+
+            .contrib-error {
+                color: #cf222e;
+                font-size: 0.9rem;
+            }
+
+            .contrib-tooltip {
+                position: fixed;
+                z-index: 20;
+                pointer-events: none;
+                background: #24292f;
+                color: #fff;
+                font-size: 12px;
+                line-height: 1.4;
+                padding: 6px 8px;
+                border-radius: 6px;
+                white-space: nowrap;
+                transform: translate(-50%, calc(-100% - 8px));
+                opacity: 0;
+                transition: opacity 80ms ease;
+            }
+
+            .contrib-tooltip.is-visible {
+                opacity: 1;
+            }
+        </style>
     </head>
     <body>
         <h1>baxterkemp.com</h1>
@@ -10,6 +119,32 @@
         <p>LinkedIn: <a href="https://www.linkedin.com/in/baxterkemp/">baxterkemp</a></p>
         <p>GitHub: <a href="https://github.com/baxterkempdev">baxterkempdev</a></p>
         <p>Website: <a href="https://baxterkemp.com">baxterkemp.com</a></p>
+
+        <h2>Activity</h2>
+        <p>Combined GitHub, Cursor, and Claude Code activity over the last 12 months. Refreshed locally on git push.</p>
+        <section class="contrib" id="contrib" aria-label="Contribution graph">
+            <div class="contrib-meta">
+                <span><strong id="contrib-total">—</strong> contributions</span>
+                <span class="contrib-sources" id="contrib-sources"></span>
+            </div>
+            <div class="contrib-scroll">
+                <div class="contrib-graph" id="contrib-graph" role="img" aria-label="Contribution calendar"></div>
+            </div>
+            <div class="contrib-footer">
+                <span id="contrib-updated"></span>
+                <span class="contrib-legend" aria-hidden="true">
+                    Less
+                    <span class="contrib-day" data-level="0"></span>
+                    <span class="contrib-day" data-level="1"></span>
+                    <span class="contrib-day" data-level="2"></span>
+                    <span class="contrib-day" data-level="3"></span>
+                    <span class="contrib-day" data-level="4"></span>
+                    More
+                </span>
+            </div>
+            <div class="contrib-tooltip" id="contrib-tooltip" role="tooltip"></div>
+        </section>
+
         <h2>Projects</h2>
         <ul>
             <li><a href="https://app.blackwattle.net">Blackwattle (Building management Saas)</a></li>
@@ -59,5 +194,109 @@
         </ul>
         <h2>Let's talk: <a href="mailto:contact@baxterkemp.com">contact@baxterkemp.com</a></h2>
         <p>I live in Sydney, Australia. I'm in my 20's. I have a Bachelor's degree in Info Tech and love meeting new people.</p>
+
+        <script>
+            (function () {
+                const graph = document.getElementById("contrib-graph");
+                const totalEl = document.getElementById("contrib-total");
+                const sourcesEl = document.getElementById("contrib-sources");
+                const updatedEl = document.getElementById("contrib-updated");
+                const tip = document.getElementById("contrib-tooltip");
+
+                function padDaysToWeeks(days) {
+                    if (!days.length) return [];
+                    const byDate = new Map(days.map((d) => [d.date, d]));
+                    const start = new Date(days[0].date + "T00:00:00Z");
+                    const end = new Date(days[days.length - 1].date + "T00:00:00Z");
+
+                    // Align to Sunday (GitHub-style)
+                    const padStart = new Date(start);
+                    padStart.setUTCDate(padStart.getUTCDate() - padStart.getUTCDay());
+
+                    const out = [];
+                    const cur = new Date(padStart);
+                    while (cur <= end || cur.getUTCDay() !== 0 || out.length % 7 !== 0) {
+                        const key = cur.toISOString().slice(0, 10);
+                        const existing = byDate.get(key);
+                        out.push(
+                            existing || {
+                                date: key,
+                                github: 0,
+                                cursor: 0,
+                                claude: 0,
+                                total: 0,
+                                level: 0,
+                                empty: cur < start || cur > end,
+                            }
+                        );
+                        cur.setUTCDate(cur.getUTCDate() + 1);
+                        if (cur > end && cur.getUTCDay() === 0) break;
+                        if (out.length > 400) break;
+                    }
+                    return out;
+                }
+
+                function showTip(event, day) {
+                    if (day.empty) {
+                        tip.classList.remove("is-visible");
+                        return;
+                    }
+                    const parts = [
+                        `${day.total} contribution${day.total === 1 ? "" : "s"} on ${day.date}`,
+                        `GitHub ${day.github} · Cursor ${day.cursor} · Claude Code ${day.claude}`,
+                    ];
+                    tip.textContent = parts.join(" — ");
+                    tip.style.left = `${event.clientX}px`;
+                    tip.style.top = `${event.clientY}px`;
+                    tip.classList.add("is-visible");
+                }
+
+                function render(data) {
+                    const days = padDaysToWeeks(data.days || []);
+                    graph.replaceChildren();
+
+                    for (const day of days) {
+                        const cell = document.createElement("div");
+                        cell.className = "contrib-day";
+                        cell.dataset.level = String(day.empty ? 0 : day.level || 0);
+                        cell.title = day.empty
+                            ? ""
+                            : `${day.total} on ${day.date} (GH ${day.github}, Cursor ${day.cursor}, Claude Code ${day.claude})`;
+                        cell.addEventListener("mousemove", (e) => showTip(e, day));
+                        cell.addEventListener("mouseleave", () => tip.classList.remove("is-visible"));
+                        graph.appendChild(cell);
+                    }
+
+                    totalEl.textContent = (data.totals && data.totals.combined) != null
+                        ? data.totals.combined.toLocaleString()
+                        : "0";
+
+                    const src = data.sources || {};
+                    const totals = data.totals || {};
+                    const parts = [];
+                    if (src.github) parts.push(`GitHub ${Number(totals.github || 0).toLocaleString()}`);
+                    if (src.cursor) parts.push(`Cursor ${Number(totals.cursor || 0).toLocaleString()}`);
+                    if (src.claude) parts.push(`Claude Code ${Number(totals.claude || 0).toLocaleString()}`);
+                    sourcesEl.textContent = parts.length
+                        ? parts.join(" · ")
+                        : "Sources not configured yet";
+
+                    updatedEl.textContent = data.generatedAt
+                        ? "Updated " + new Date(data.generatedAt).toLocaleString() + " (on push)"
+                        : "Waiting for first local sync";
+                }
+
+                fetch("data/contributions.json", { cache: "no-cache" })
+                    .then((r) => {
+                        if (!r.ok) throw new Error("Could not load contribution data");
+                        return r.json();
+                    })
+                    .then(render)
+                    .catch((err) => {
+                        totalEl.textContent = "0";
+                        sourcesEl.innerHTML = `<span class="contrib-error">${err.message}</span>`;
+                    });
+            })();
+        </script>
     </body>
 </html>
