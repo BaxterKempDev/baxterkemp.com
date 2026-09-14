@@ -1,6 +1,35 @@
+html {
+    color-scheme: light dark;
+    background: Canvas;
+    color: CanvasText;
+}
+
+html[data-theme="light"] {
+    color-scheme: light;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+}
+
 body {
     max-width: 42rem;
     margin: 0 auto;
     padding: 0rem 1rem 1rem 1rem;
     box-sizing: border-box;
+    background: Canvas;
+    color: CanvasText;
+}
+
+a {
+    color: LinkText;
+}
+
+a:visited {
+    color: VisitedText;
+}
+
+[data-theme-toggle] {
+    display: block;
+    margin: 1em 0;
 }

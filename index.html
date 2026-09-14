@@ -5,18 +5,26 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Baxter Kemp</title>
         <link rel="stylesheet" href="/styles.css">
+        <script>
+            try {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', theme);
+                }
+            } catch (e) {}
+        </script>
     </head>
     <body>
         <a name="top"></a>
         <h1>Baxter Kemp</h1>
-        <p>Baxter is a software engineer in his early 20's. He lives in Sydney, Australia. He has a Bachelor's degree in Infomation Technology.</p>
+        <p>Baxter is a software engineer in his early 20s. He lives in Sydney, Australia. He has a Bachelor's degree in Information Technology.</p>
         <h2>Contact</h2>
         <p>Email: <a href="mailto:contact@baxterkemp.com">contact@baxterkemp.com</a></p>
         <p>LinkedIn: <a href="https://www.linkedin.com/in/baxterkemp/">baxterkemp</a></p>
         <p>GitHub: <a href="https://github.com/baxterkempdev">baxterkempdev</a></p>
         <h2>Projects</h2>
         <ul>
-            <li><a href="https://app.blackwattle.net">Blackwattle (Building management Saas)</a></li>
+            <li><a href="https://app.blackwattle.net">Blackwattle (Building management SaaS)</a></li>
             <li><a href="https://chariz.com/buy/sydney">Sydney (iOS Jailbreak tweak that sold over 1000 copies)</a></li>
             <li><a href="https://havoc.app/package/iosx">iOSX (Icon theme pack that was downloaded over 10,000 times)</a></li>
             <li><a href="https://bank5ia.com/products">Bank5ia Product showcase website</a></li>
@@ -34,7 +42,7 @@
                 <li>Database design and implementation</li>
             </ul>
             <li>SSR, API, pub/sub, webhook development</li>
-            <li>Typescript, Node.js, React, Next.js</li>
+            <li>TypeScript, Node.js, React, Next.js</li>
             <li>Tailwind CSS, Shadcn/ui</li>
         </ul>
         <h3>Artificial intelligence</h3>
@@ -44,7 +52,7 @@
             <li>Agent management / Agentic AI</li>
             <li>AI-powered tools (Skills, context, cursor/claude, all that jazz)</li>
         </ul>
-        <h3>iOS/MacOS development</h3>
+        <h3>iOS/macOS development</h3>
         <ul>
             <li>Objective-C++</li>
             <li>Swift</li>
@@ -63,5 +71,7 @@
         </ul>
         <h2>Let's talk: <a href="mailto:contact@baxterkemp.com">contact@baxterkemp.com</a></h2>
         <a href="#top">Back to top</a>
+        <a href="#" data-theme-toggle>Switch appearance</a>
+        <script src="/theme.js"></script>
     </body>
 </html>

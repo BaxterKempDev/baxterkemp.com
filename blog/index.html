@@ -5,6 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Baxter Kemp</title>
         <link rel="stylesheet" href="/styles.css">
+        <script>
+            try {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', theme);
+                }
+            } catch (e) {}
+        </script>
     </head>
     <body>
         <a name="top"></a>
@@ -12,5 +20,7 @@
         <ul>
             <li><a href="/blog/14.09.2026.20-50/">Existential dread due to my internet addiction.</a></li>
         </ul>
+        <a href="#" data-theme-toggle>Switch appearance</a>
+        <script src="/theme.js"></script>
     </body>
 </html>
